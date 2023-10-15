@@ -25,13 +25,12 @@ After that, the script is ready for use.
 */
 public class Main {
 
-    private static final String BEARER = ""; // Bearer token
+    private static final String BEARER = ""; // Bearer token.
     private static final String CLIENT_ID = ""; // Key
     private static final Logger LOGGER = LogManager.getLogger(Main.class);
     private static final String URL = "";
     private static final String CSV_FILE_PATH = ""; //File with applicantId
-
-
+    private static final String AUTH = "Bearer " + BEARER;
     public static void main(String[] args)  {
         LOGGER.info("Script starts with file " + CSV_FILE_PATH);
 
@@ -42,18 +41,19 @@ public class Main {
                     if (line.length > 0) {
                         String applicantId = line[0];
                         //applicantMoveToPending(applicantId); //Move to pending
-                        //applicantMoveToInit(applicantId); //Move to init
+                        applicantMoveToInit(applicantId); //Move to init
                         //deleteApplicant(applicantId); //Delete applicant
                     }
                 }
             } catch (IOException | CsvException e) {
                 e.printStackTrace();
             }
+
     }
 
     public static Response applicantMoveToPending(String applicantId) {
-        Requests s = (Requests)(new FeignClient()).getClient(Requests.class, URL);
-        Response response = s.applicantMoveToPending(applicantId, BEARER, CLIENT_ID);
+        Requests s = (Requests)(new FeignClient()).getClient(Requests.class, URL, AUTH, CLIENT_ID);
+        Response response = s.applicantMoveToPending(applicantId);
         if (response.status() == 200)
             LOGGER.info("Applicant send to pending: " + applicantId);
         else
@@ -62,8 +62,8 @@ public class Main {
     }
 
     public static Response applicantMoveToInit(String applicantId) {
-        Requests s = (Requests)(new FeignClient()).getClient(Requests.class, URL);
-        Response response = s.applicantMoveToInit(applicantId, BEARER, CLIENT_ID);
+        Requests s = (Requests)(new FeignClient()).getClient(Requests.class, URL, AUTH, CLIENT_ID);
+        Response response = s.applicantMoveToInit(applicantId);
         if (response.status() == 200)
             LOGGER.info("Applicant send to init: " + applicantId);
         else
@@ -73,8 +73,8 @@ public class Main {
 
     public static Response deleteApplicant(String applicantId) {
         applicantMoveToInit(applicantId);
-        Requests s = (Requests)(new FeignClient()).getClient(Requests.class, URL);
-        Response response = s.deleteApplicant(applicantId, BEARER, CLIENT_ID);
+        Requests s = (Requests)(new FeignClient()).getClient(Requests.class, URL, AUTH, CLIENT_ID);
+        Response response = s.deleteApplicant(applicantId);
         if (response.status() == 200)
             LOGGER.info("Delete applicant: " + applicantId);
         else
