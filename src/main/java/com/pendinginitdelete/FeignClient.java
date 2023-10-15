@@ -1,6 +1,7 @@
 package com.pendinginitdelete;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pendinginitdelete.interfaces.Requests;
 import feign.Feign;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
@@ -10,16 +11,19 @@ import feign.jackson.JacksonEncoder;
 
 public class FeignClient
 {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final Decoder decoder = new JacksonDecoder(objectMapper);
-    private static final Encoder encoder = new JacksonEncoder(objectMapper);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final Decoder DECODER = new JacksonDecoder(OBJECT_MAPPER);
+    private static final Encoder ENCODER = new JacksonEncoder(OBJECT_MAPPER);
 
     public Feign.Builder prepareFeignBuilder()
     {
-        Feign.Builder feignClient = Feign.builder()
-                .decoder(decoder)
-                .encoder(new FormEncoder(encoder));
-        //.requestInterceptor(new RequestSignature());
+        Feign.Builder feignClient = Feign.builder().requestInterceptor(template ->
+                        template
+                                .header("Content-Type", "application/json")
+                                .header("X-Client-Id", "dashboard")
+                )
+                .decoder(DECODER)
+                .encoder(new FormEncoder(ENCODER));
 
         return feignClient;
     }
